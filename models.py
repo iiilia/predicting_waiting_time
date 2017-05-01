@@ -32,14 +32,22 @@ class AddFeatures(BaseEstimator, RegressorMixin):
         self.final_model = None
         self.stop = stop
         self.best_iter = None
-        logging.info(self.model.__class__)
     
     def fit(self, df, df_val, features, target, score):
         # score: less -> better
         
+        logging.info('*** '+self.model.__str__())
+        
         self.all_features = features
         self.flag_stop = True
+        
+        counter = 0
+        
         while self.flag_stop and self.all_features:
+            counter = counter + 1
+            if counter % 50 == 0:
+                sys.stderr.write('-')
+                
             res = []
             for feat in self.all_features:
                 model = self.model
@@ -88,10 +96,10 @@ class ExceptFeatures(BaseEstimator, RegressorMixin):
         self.final_score = None
         self.final_iter = None
         self.stop = stop
-        logging.info(self.model.__class__)
     
     def fit(self, df, df_val, features, target, score):
         # score: less -> better
+        logging.info('*** '+self.model.__str__())
         
         self.features = features
         self.flag_stop = True
@@ -102,8 +110,11 @@ class ExceptFeatures(BaseEstimator, RegressorMixin):
         temp_score = score(y_real, y_pred)
         self.score.append(temp_score)
         self.models.append(model)
-        
+        counter = 0
         while self.flag_stop and len(set(self.features).difference(set(self.excepted_features)))>0:
+            counter = counter + 1
+            if counter % 50 == 0:
+                sys.stderr.write('-')
             res = []
             for feat in set(self.features).difference(set(self.excepted_features)):
                 model = self.model
