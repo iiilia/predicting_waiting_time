@@ -95,7 +95,6 @@ class ExceptFeatures(BaseEstimator, RegressorMixin):
         
         self.features = features
         self.flag_stop = True
-        
         model = self.model
         model.fit(df[self.features],df[target])
         y_pred = model.predict(df_val[self.features])
@@ -116,6 +115,7 @@ class ExceptFeatures(BaseEstimator, RegressorMixin):
                 temp_score = score(y_real, y_pred)
                 res.append((feat, temp_score, model ))
             
+            # sys.stderr.write('|||'.join(self.excepted_features))
             res_sorted = sorted(res, key=lambda x: x[1])  
             
             logging.info('{} - {}'.format(res_sorted[0][0],res_sorted[0][1]))
