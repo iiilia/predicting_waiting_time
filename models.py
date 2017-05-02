@@ -44,8 +44,9 @@ class AddFeatures(BaseEstimator, RegressorMixin):
         counter = 0
         
         while self.flag_stop and self.all_features:
+            
             counter = counter + 1
-            if counter % 50 == 0:
+            if counter % 10 == 0:
                 sys.stderr.write('-')
                 
             res = []
@@ -112,10 +113,12 @@ class ExceptFeatures(BaseEstimator, RegressorMixin):
         self.models.append(model)
         counter = 0
         while self.flag_stop and len(set(self.features).difference(set(self.excepted_features)))>0:
+            
             counter = counter + 1
-            if counter % 50 == 0:
+            if counter % 10 == 0:
                 sys.stderr.write('-')
             res = []
+            
             for feat in set(self.features).difference(set(self.excepted_features)):
                 model = self.model
                 temp_features = list(set(self.features).difference(set(self.excepted_features)))
