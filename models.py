@@ -66,7 +66,7 @@ class AddFeatures(BaseEstimator, RegressorMixin):
             
             logging.info('{}/{} : {} - {}'.format(self.main_name, self.name, res_sorted[0][0],res_sorted[0][1]))
             
-            if res_sorted[0][1] < self.score[-1]:
+            if res_sorted[0][1] < self.scores[-1]:
                 self.all_features.remove(res_sorted[0][0])
                 self.features.append(res_sorted[0][0])
                 self.scores.append(res_sorted[0][1])
@@ -141,7 +141,7 @@ class ExceptFeatures(BaseEstimator, RegressorMixin):
             
             logging.info('{}/{} : {} - {}'.format(self.main_name, self.name, res_sorted[0][0],res_sorted[0][1]))
             
-            if res_sorted[0][1] < self.score[-1]:
+            if res_sorted[0][1] < self.scores[-1]:
                 self.excepted_features.append(res_sorted[0][0])
                 self.scores.append(res_sorted[0][1])
                 self.models.append(res_sorted[0][2])
