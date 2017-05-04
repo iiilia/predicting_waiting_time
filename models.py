@@ -47,14 +47,16 @@ class AddFeatures(BaseEstimator, RegressorMixin):
         
         counter = 0
         
-        while self.flag_stop and self.all_features:
+        while self.flag_stop and len(self.all_features)>0:
             
             counter = counter + 1
             if counter % 10 == 0 and self.verbose:
                 sys.stderr.write('-')
                 
+            sys.stderr.write('-')    
             res = []
-            for feat in self.all_features:
+            temp_all_features = self.all_features
+            for feat in temp_all_features:
                 model = self.model
                 model.fit(df[self.features + [feat]],df[target])
                 y_pred = model.predict(df_val[self.features + [feat]])
@@ -67,7 +69,11 @@ class AddFeatures(BaseEstimator, RegressorMixin):
             logging.info('{}/{} : {} - {}'.format(self.main_name, self.name, res_sorted[0][0],res_sorted[0][1]))
             
             if res_sorted[0][1] < self.scores[-1]:
-                self.all_features.remove(res_sorted[0][0])
+                try:
+                    temp_all_features.remove(res_sorted[0][0])
+                    self.all_features = temp_all_features
+                except ValueError as e:
+                    logging.warning(u'WARNING: We have not "{}" feature'.format(str(res_sorted[0][0])))
                 self.features.append(res_sorted[0][0])
                 self.scores.append(res_sorted[0][1])
                 self.models.append(res_sorted[0][2])
@@ -75,7 +81,11 @@ class AddFeatures(BaseEstimator, RegressorMixin):
                 if self.stop:
                     self.flag_stop = False
                 else:
-                    self.all_features.remove(res_sorted[0][0])
+                    try:
+                        temp_all_features.remove(res_sorted[0][0])
+                        self.all_features = temp_all_features
+                    except ValueError as e:
+                        logging.warning(u'WARNING: We have not "{}" feature'.format(str(res_sorted[0][0])))
                     self.features.append(res_sorted[0][0])
                     self.scores.append(res_sorted[0][1])
                     self.models.append(res_sorted[0][2])
@@ -96,6 +106,8 @@ class ExceptFeatures(BaseEstimator, RegressorMixin):
         self.verbose = verbose
         self.model = model
         self.models = []
+        
+        # excluded features
         self.excepted_features = [None]
         self.scores = []
         self.final_model = None
@@ -110,6 +122,7 @@ class ExceptFeatures(BaseEstimator, RegressorMixin):
         # score: less -> better
         logging.info('*** '+self.name )
         
+        # all features
         self.features = features
         self.flag_stop = True
         model = self.model
@@ -127,7 +140,8 @@ class ExceptFeatures(BaseEstimator, RegressorMixin):
                 sys.stderr.write('-')
             res = []
             
-            for feat in set(self.features).difference(set(self.excepted_features)):
+            sys.stderr.write('-')
+            for feat in tqdm(set(self.features).difference(set(self.excepted_features))):
                 model = self.model
                 temp_features = list(set(self.features).difference(set(self.excepted_features)))
                 temp_features.remove(feat)
@@ -162,7 +176,7 @@ class ExceptFeatures(BaseEstimator, RegressorMixin):
             try:
                 temp_features.remove(i)
             except ValueError as e:
-                logging.warning(u'We have not {} feature'.format(str(i)))
+                logging.warning(u'WARNING: We have not {} feature'.format(str(i)))
         self.final_features = temp_features
         
     def predict(self, df_test):
